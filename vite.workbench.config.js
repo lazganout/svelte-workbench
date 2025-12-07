@@ -12,7 +12,6 @@ const __dirname = path.dirname(__filename);
 const toPosixPath = (p) => p.split(path.sep).join('/');
 
 export default defineConfig({
-    // Root is User's Project
     root: process.cwd(),
 
     server: {
@@ -41,38 +40,31 @@ export default defineConfig({
             name: 'serve-workbench-html',
             configureServer(server) {
                 server.middlewares.use(async (req, res, next) => {
-                    // Intercept root or index.html requests
                     if (req.url === '/' || req.url.startsWith('/index.html')) {
-
                         const htmlPath = path.resolve(__dirname, 'index.html');
 
                         try {
+                            // 1. Read raw HTML
                             let html = fs.readFileSync(htmlPath, 'utf-8');
 
-                            // Transform HTML (Vite injects HMR client, etc.)
-                            html = await server.transformIndexHtml(req.url, html);
-
-                            // --- Calculate Absolute Entry Path ---
+                            // 2. Calculate Absolute Entry Path
                             const rawPath = path.resolve(__dirname, 'src/main.ts');
                             const posixPath = toPosixPath(rawPath);
-                            // Ensure valid Vite absolute fs path (handle Windows drive letters)
-                            // Example: /@fs/C:/Users/name/project/...
                             const entryPath = `/@fs/${posixPath.replace(/^\//, '')}`;
 
-                            // --- ROBUST REPLACEMENT ---
-                            // This regex finds <script ... src="..."> anywhere in the tag
-                            // and handles quotes/spacing variations.
-                            // We look for 'main.ts' specifically.
-                            const regex = /<script\s+[^>]*src=["'].*?main\.ts["'][^>]*><\/script>/i;
-
-                            if (regex.test(html)) {
-                                console.log('[Workbench] 🟢 Injecting Workbench Entry:', entryPath);
-                                // Replace the whole tag with the correct one
-                                html = html.replace(regex, `<script type="module" src="${entryPath}"></script>`);
+                            // 3. Replace BEFORE transform (Critical Fix)
+                            // This matches the static content of your index.html perfectly
+                            if (html.includes('src="/src/main.ts"')) {
+                                html = html.replace(
+                                    'src="/src/main.ts"',
+                                    `src="${entryPath}"`
+                                );
                             } else {
-                                console.error('[Workbench] 🔴 FAILED to find script tag in index.html');
-                                console.log('Current HTML Content:', html);
+                                console.error('[Workbench] 🔴 Could not find static script tag to replace.');
                             }
+
+                            // 4. Transform HTML (Vite injects HMR client now)
+                            html = await server.transformIndexHtml(req.url, html);
 
                             res.setHeader('Content-Type', 'text/html');
                             res.end(html);
