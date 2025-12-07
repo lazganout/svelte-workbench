@@ -24,9 +24,16 @@ export default defineConfig({
     },
 
     resolve: {
+        // --- THE FIX ---
+        // Force Vite to deduplicate Svelte
+        dedupe: ['svelte'],
         alias: {
             '$workbench': __dirname,
-            '/@workbench-src': path.resolve(__dirname, 'src')
+            '/@workbench-src': path.resolve(__dirname, 'src'),
+
+            // CRITICAL: Force 'svelte' to resolve to the USER'S node_modules.
+            // This ensures the Workbench UI and the User Components use the exact same Svelte instance.
+            'svelte': path.resolve(process.cwd(), 'node_modules/svelte')
         }
     },
 
@@ -52,8 +59,7 @@ export default defineConfig({
                             const posixPath = toPosixPath(rawPath);
                             const entryPath = `/@fs/${posixPath.replace(/^\//, '')}`;
 
-                            // 3. Replace BEFORE transform (Critical Fix)
-                            // This matches the static content of your index.html perfectly
+                            // 3. Replace BEFORE transform
                             if (html.includes('src="/src/main.ts"')) {
                                 html = html.replace(
                                     'src="/src/main.ts"',
@@ -63,7 +69,7 @@ export default defineConfig({
                                 console.error('[Workbench] 🔴 Could not find static script tag to replace.');
                             }
 
-                            // 4. Transform HTML (Vite injects HMR client now)
+                            // 4. Transform HTML
                             html = await server.transformIndexHtml(req.url, html);
 
                             res.setHeader('Content-Type', 'text/html');
