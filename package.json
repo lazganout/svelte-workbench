@@ -20,7 +20,12 @@
   },
   "dependencies": {
     "@sveltejs/vite-plugin-svelte": "^5.0.0", 
-    "svelte": "^5.0.0",
     "vite": "^6.0.0" 
+  },
+  "peerDependencies": {
+    "svelte": "^5.0.0"
+  },
+  "devDependencies": {
+    "svelte": "^5.43.8" 
   }
 }

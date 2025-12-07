@@ -24,17 +24,19 @@ export default defineConfig({
     },
 
     resolve: {
-        // --- THE FIX ---
-        // Force Vite to deduplicate Svelte
+        // Force Vite to use the project's Svelte copy
         dedupe: ['svelte'],
         alias: {
             '$workbench': __dirname,
-            '/@workbench-src': path.resolve(__dirname, 'src'),
-
-            // CRITICAL: Force 'svelte' to resolve to the USER'S node_modules.
-            // This ensures the Workbench UI and the User Components use the exact same Svelte instance.
-            'svelte': path.resolve(process.cwd(), 'node_modules/svelte')
+            '/@workbench-src': path.resolve(__dirname, 'src')
         }
+    },
+
+    // --- FIX: Prevent pre-bundling Svelte ---
+    // This fixes the "Cannot optimize dependency" and "Cannot read file" errors
+    // while ensuring 'dedupe' works effectively to solve the blank screen issue.
+    optimizeDeps: {
+        exclude: ['svelte']
     },
 
     plugins: [
@@ -51,15 +53,12 @@ export default defineConfig({
                         const htmlPath = path.resolve(__dirname, 'index.html');
 
                         try {
-                            // 1. Read raw HTML
                             let html = fs.readFileSync(htmlPath, 'utf-8');
 
-                            // 2. Calculate Absolute Entry Path
                             const rawPath = path.resolve(__dirname, 'src/main.ts');
                             const posixPath = toPosixPath(rawPath);
                             const entryPath = `/@fs/${posixPath.replace(/^\//, '')}`;
 
-                            // 3. Replace BEFORE transform
                             if (html.includes('src="/src/main.ts"')) {
                                 html = html.replace(
                                     'src="/src/main.ts"',
@@ -69,7 +68,6 @@ export default defineConfig({
                                 console.error('[Workbench] 🔴 Could not find static script tag to replace.');
                             }
 
-                            // 4. Transform HTML
                             html = await server.transformIndexHtml(req.url, html);
 
                             res.setHeader('Content-Type', 'text/html');
