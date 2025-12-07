@@ -1,7 +1,6 @@
 {
   "name": "svelte-workbench",
-  "private": true,
-  "version": "0.0.1", 
+  "version": "0.0.1",
   "type": "module",
   "bin": {
     "svelte-workbench": "./bin/workbench.js"
@@ -10,22 +9,28 @@
     "dist",
     "src",
     "bin",
-    "vite.workbench.config.js", 
-    "workbench-plugin.js",      
+    "vite.workbench.config.js",
+    "workbench-plugin.js",
     "index.html"
   ],
   "scripts": {
     "dev": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json"
   },
   "dependencies": {
     "@sveltejs/vite-plugin-svelte": "^5.0.0", 
-    "vite": "^6.0.0" 
+    "vite": "^6.0.0",
+    "@tailwindcss/vite": "^4.0.0",
+    "tailwindcss": "^4.0.0"
   },
   "peerDependencies": {
     "svelte": "^5.0.0"
   },
   "devDependencies": {
-    "svelte": "^5.43.8" 
+    "@tsconfig/svelte": "^5.0.0",
+    "svelte": "^5.0.0", 
+    "svelte-check": "^4.0.0",
+    "typescript": "^5.0.0"
   }
 }

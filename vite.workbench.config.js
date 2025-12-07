@@ -8,7 +8,6 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Helper: Ensure valid browser paths (C:\foo -> C:/foo)
 const toPosixPath = (p) => p.split(path.sep).join('/');
 
 export default defineConfig({
@@ -24,7 +23,8 @@ export default defineConfig({
     },
 
     resolve: {
-        // Force Vite to use the project's Svelte copy
+        // This ensures if there ARE slight version mismatches, 
+        // Vite tries to flatten them to one instance.
         dedupe: ['svelte'],
         alias: {
             '$workbench': __dirname,
@@ -32,9 +32,7 @@ export default defineConfig({
         }
     },
 
-    // --- FIX: Prevent pre-bundling Svelte ---
-    // This fixes the "Cannot optimize dependency" and "Cannot read file" errors
-    // while ensuring 'dedupe' works effectively to solve the blank screen issue.
+    // We can keep this safety measure
     optimizeDeps: {
         exclude: ['svelte']
     },
