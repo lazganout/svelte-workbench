@@ -10,7 +10,7 @@ const __dirname = path.dirname(__filename);
 
 // Calculate the path to the config file we created in Step 2
 // Assumes bin/workbench.js is one level deep, so we go up one level
-const configPath = path.resolve(__dirname, '../vite.workbench.config.ts');
+const configPath = path.resolve(__dirname, '../vite.workbench.config.js');
 
 async function startServer() {
     console.log('🚀 Starting Svelte Workbench...');

@@ -1,7 +1,7 @@
-// src/workbench-plugin.ts
-import type { Plugin } from 'vite';
+export default function svelteWorkbench(options = {}) {
+    // Default options
+    const pattern = options.pattern || '/src/**/preview/*.svelte';
 
-export default function svelteWorkbench(options = { pattern: '/src/**/preview/*.svelte' }): Plugin {
     const virtualModuleId = 'virtual:workbench';
     const resolvedVirtualModuleId = '\0' + virtualModuleId;
 
@@ -14,9 +14,8 @@ export default function svelteWorkbench(options = { pattern: '/src/**/preview/*.
         },
         load(id) {
             if (id === resolvedVirtualModuleId) {
-                // We inject the pattern provided in options
                 return `
-          const globResult = import.meta.glob('${options.pattern}');
+          const globResult = import.meta.glob('${pattern}');
           
           export default Object.entries(globResult).map(([path, loader]) => ({
             path,
