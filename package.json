@@ -3,6 +3,17 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "bin": {
+    "svelte-workbench": "./bin/workbench.js"
+  },
+  "files": [
+    "dist",
+    "src",
+    "bin",
+    "vite.workbench.config.ts",
+    "index.html",
+    "workbench-plugin.ts"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",

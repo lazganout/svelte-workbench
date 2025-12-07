@@ -1,6 +1,7 @@
+// src/workbench-plugin.ts
 import type { Plugin } from 'vite';
 
-export default function svelteWorkbench(): Plugin {
+export default function svelteWorkbench(options = { pattern: '/src/**/preview/*.svelte' }): Plugin {
     const virtualModuleId = 'virtual:workbench';
     const resolvedVirtualModuleId = '\0' + virtualModuleId;
 
@@ -13,10 +14,9 @@ export default function svelteWorkbench(): Plugin {
         },
         load(id) {
             if (id === resolvedVirtualModuleId) {
-                // We return code that uses Vite's native glob feature.
-                // Vite will parse this string, find the files, and keep them updated (HMR).
+                // We inject the pattern provided in options
                 return `
-          const globResult = import.meta.glob('/playground/**/preview/*.svelte');
+          const globResult = import.meta.glob('${options.pattern}');
           
           export default Object.entries(globResult).map(([path, loader]) => ({
             path,
